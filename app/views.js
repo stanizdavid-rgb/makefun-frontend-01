@@ -32,7 +32,7 @@ function boardRow(b) {
  * so the list can be re-filtered in place without another request.
  */
 export function board(state) {
-  const { items, filter, sort, query, total } = state;
+  const { items, filter, sort, query, cursor } = state;
   const visible = items
     .filter((b) => {
       if (filter === 'open' && !takingEntries(b)) return false;
@@ -54,7 +54,7 @@ export function board(state) {
   const chip = (key, label) =>
     `<button type="button" data-filter="${key}" class="${filter === key ? 'on' : ''}" aria-pressed="${filter === key}">${label}</button>`;
   return `<h1>Open bounties</h1>
-  <p class="lede">${total} live on make.fun — reward is the live pot, fees included.</p>
+  <p class="lede">${items.length} live on make.fun — reward is the live pot, fees included.</p>
   <div class="filters" role="group" aria-label="Filter bounties">
     ${chip('open', 'Taking entries')}${chip('soon', 'Closing in 24h')}${chip('nofee', 'No entry fee')}${chip('all', 'All')}
     <label class="sort">Sort
@@ -66,7 +66,7 @@ export function board(state) {
     </label>
   </div>
   ${visible.length ? `<ul class="board">${visible.map(boardRow).join('')}</ul>` : '<p class="empty">No bounties match — try another filter or search.</p>'}
-  <p class="more"><button type="button" id="more">Show more bounties</button></p>`;
+  ${cursor ? '<p class="more"><button type="button" id="more">Show more bounties</button></p>' : ''}`;
 }
 
 /** The rewards table: each paid place with its live amount (base prize + fee share). */
@@ -94,7 +94,7 @@ export function bounty(b) {
     <dt>Live pot</dt><dd><strong>${pot(b)}</strong>${b.entryFeesUsd && Number(b.entryFeesUsd) > 0 ? ` (includes ${money(b.entryFeesUsd)} in entry fees from ${b.entryFeePayers ?? 0} payers)` : ''}</dd>
     <dt>Prize</dt><dd>${money(b.rewardAmount)}</dd>
     ${b.entryFeeUsd != null ? `<dt>Entry fee</dt><dd>${money(b.entryFeeUsd)}</dd>` : ''}
-    <dt>Deadline</dt><dd><span data-deadline="${esc(b.deadline)}">${date(b.deadline)} (${timeLeft(b.deadline)})</span></dd>
+    <dt>Deadline</dt><dd>${date(b.deadline)} (<span data-deadline="${esc(b.deadline)}">${timeLeft(b.deadline)}</span>)</dd>
     <dt>Published</dt><dd>${date(b.publishedAt)}</dd>
     <dt>Entries</dt><dd>${Number(b.submissionCount ?? 0).toLocaleString('en-US')}</dd>
     ${b.sponsor ? `<dt>Sponsor</dt><dd>${esc(b.sponsor.name)}${b.sponsor.isVerified ? ' ✓' : ''}</dd>` : ''}
@@ -136,7 +136,7 @@ export function leaderboard(slug, data, page) {
     .join('');
   return `<p class="crumbs"><a href="#/">All bounties</a> › <a href="#/bounty/${encodeURIComponent(slug)}">${esc(data.competition?.title ?? slug)}</a> › Leaderboard</p>
   <h1>Leaderboard</h1>
-  <p class="lede">${esc(data.title ?? 'Results')}${data.phase?.title ? ` · ${esc(data.phase.title)}` : ''}${data.phase?.ends_at ? ` · ends <span data-deadline="${esc(data.phase.ends_at)}">${date(data.phase.ends_at)}</span>` : ''}</p>
+  <p class="lede">${esc(data.title ?? 'Results')}${data.phase?.title ? ` · ${esc(data.phase.title)}` : ''}${data.phase?.ends_at ? ` · ends ${date(data.phase.ends_at)} (<span data-deadline="${esc(data.phase.ends_at)}">${timeLeft(data.phase.ends_at)}</span>)` : ''}</p>
   ${data.entries?.length ? `<div class="tablewrap"><table class="lb">
     <thead><tr><th>#</th><th>Hunter</th><th>Entry</th>${head}<th>Status</th></tr></thead>
     <tbody>${rows}</tbody></table></div>` : '<p class="empty">No entries on the leaderboard yet.</p>'}
