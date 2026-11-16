@@ -138,13 +138,13 @@ h3 { font-size: 1.05rem; margin: 1.4em 0 0.4em; }
 }
 .btn-ghost { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
 
-.rewards, .lb { border-collapse: collapse; width: 100%; background: #fff; }
+.rewards, .lb { border-collapse: collapse; width: 100%; background: #fff; font-size: 0.9rem; }
 .rewards th, .rewards td, .lb th, .lb td {
   text-align: left;
-  padding: 7px 10px;
+  padding: 6px 8px;
   border-bottom: 1px solid var(--line);
-  font-size: 0.95rem;
 }
+.lb td:nth-child(3) { max-width: 22rem; }
 .rewards th, .lb th { background: #f4efe4; }
 .tablewrap { overflow-x: auto; }
 .lb .rank { font-weight: 800; text-align: right; }
